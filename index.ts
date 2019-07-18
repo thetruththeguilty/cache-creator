@@ -1,5 +1,5 @@
 
-interface IValueWrapper<TValue> {
+export interface IValueWrapper<TValue> {
   /**
    * value, in the fromat you want
    */
@@ -12,7 +12,7 @@ interface IValueWrapper<TValue> {
   ttl?: number,
 }
 
-interface IOptions<TStorage, TValue> {
+export interface IOptions<TStorage, TValue> {
   timeDivider?: number,
   getter: (storage: TStorage, key: string) => Promise<IValueWrapper<TValue>>,
   setter: (storage: TStorage, key: string, valueWrapper: IValueWrapper<TValue>) => Promise<IValueWrapper<TValue>>,
