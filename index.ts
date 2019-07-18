@@ -1,5 +1,6 @@
 
 export interface IValueWrapper<TValue> {
+
   /**
    * value, in the fromat you want
    */
@@ -9,27 +10,30 @@ export interface IValueWrapper<TValue> {
    * timestamp, when the value is insert or update
    */
   timestamp: number,
-  ttl?: number,
 }
 
 export interface IOptions<TStorage, TValue> {
+
+  /**
+   * timestamp = currentTime / timeDivider
+   */
   timeDivider?: number,
+
+  /**
+   * this option can override the combined cleanUp function
+   */
+  overrideCleanUp?: (ttl: number) => Promise<boolean>
+
   getter: (storage: TStorage, key: string) => Promise<IValueWrapper<TValue>>,
-  setter: (storage: TStorage, key: string, valueWrapper: IValueWrapper<TValue>) => Promise<IValueWrapper<TValue>>,
+  setter: (storage: TStorage, key: string, valueWrapper: IValueWrapper<TValue>, ttl?: number) => Promise<IValueWrapper<TValue>>,
   remover?: (storage: TStorage, key: string) => any,
   iterater?: (storage: TStorage, cb: (v: IValueWrapper<TValue>, key: string) => void) => void,
-  cleanUp?: (ttl: number) => Promise<boolean>
 }
 
 const Hour = 3600
 const Day = 24 * Hour
 
 /**
- * 
- * TODO: use ts
- * TODO: refactor save with ttl
- * TODO: add some test
- * TODO: cleanUp override options
  * 
  * save(key, value, ttl)
  * load(key, ttl)
@@ -54,7 +58,7 @@ export function createCache<TStorage, TValue>(
 
   async function save (key: string, value: TValue, ttl: number = 0) {
     let currentTimestamp = Date.now() / timeDivider | 0
-    return setter(storage, key, { value, timestamp: currentTimestamp })
+    return setter(storage, key, { value, timestamp: currentTimestamp }, ttl)
   }
 
   async function load (key: string, ttl: number = Day) {
@@ -107,7 +111,7 @@ export function createCache<TStorage, TValue>(
    * cleanUp, use function from options or use iterater and delete
    * @param {number} ttl time to live
    */
-  let cleanUp = opts.cleanUp || (async function (ttl = Day) {
+  let cleanUp = opts.overrideCleanUp || (async function (ttl = Day) {
     let remover: (storage: TStorage, key: string) => any
     let iterater: (storage: TStorage, cb: (v: IValueWrapper<TValue>, key: string) => void) => void
 

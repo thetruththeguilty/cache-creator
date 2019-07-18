@@ -29,7 +29,11 @@ class MemoryStorage {
     }
 }
 exports.MemoryStorage = MemoryStorage;
-exports.memoryCache = index_1.default(new MemoryStorage(500), {
-    getter: (storage, key) => __awaiter(this, void 0, void 0, function* () { return storage.getItem(key); }),
-    setter: (storage, key, value) => __awaiter(this, void 0, void 0, function* () { return storage.setItem(key, value); }),
-});
+function createMemoryCache(maxCount) {
+    return index_1.default(new MemoryStorage(maxCount), {
+        getter: (storage, key) => __awaiter(this, void 0, void 0, function* () { return storage.getItem(key); }),
+        setter: (storage, key, value) => __awaiter(this, void 0, void 0, function* () { return storage.setItem(key, value); }),
+    });
+}
+exports.createMemoryCache = createMemoryCache;
+exports.memoryCache = createMemoryCache(500);

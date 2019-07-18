@@ -24,10 +24,14 @@ export class MemoryStorage {
   }
 }
 
-export let memoryCache = createCache<MemoryStorage, any>(
-  new MemoryStorage(500),
-  {
-    getter: async (storage, key) => storage.getItem(key),
-    setter: async (storage, key, value) => storage.setItem(key, value),
-  }
-)
+export function createMemoryCache(maxCount: number) {
+  return createCache<MemoryStorage, any>(
+    new MemoryStorage(maxCount),
+    {
+      getter: async (storage, key) => storage.getItem(key),
+      setter: async (storage, key, value) => storage.setItem(key, value),
+    }
+  )
+}
+
+export let memoryCache = createMemoryCache(500)

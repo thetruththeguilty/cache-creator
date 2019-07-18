@@ -12,11 +12,6 @@ const Hour = 3600;
 const Day = 24 * Hour;
 /**
  *
- * TODO: use ts
- * TODO: refactor save with ttl
- * TODO: add some test
- * TODO: cleanUp override options
- *
  * save(key, value, ttl)
  * load(key, ttl)
  * cleanUp(ttl)
@@ -35,7 +30,7 @@ function createCache(storage, opts) {
     function save(key, value, ttl = 0) {
         return __awaiter(this, void 0, void 0, function* () {
             let currentTimestamp = Date.now() / timeDivider | 0;
-            return setter(storage, key, { value, timestamp: currentTimestamp });
+            return setter(storage, key, { value, timestamp: currentTimestamp }, ttl);
         });
     }
     function load(key, ttl = Day) {
@@ -85,7 +80,7 @@ function createCache(storage, opts) {
      * cleanUp, use function from options or use iterater and delete
      * @param {number} ttl time to live
      */
-    let cleanUp = opts.cleanUp || (function (ttl = Day) {
+    let cleanUp = opts.overrideCleanUp || (function (ttl = Day) {
         return __awaiter(this, void 0, void 0, function* () {
             let remover;
             let iterater;
