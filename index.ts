@@ -24,16 +24,29 @@ export interface IOptions<TStorage, TValue> {
    */
   overrideCleanUp?: (ttl: number) => Promise<boolean>
 
-  getter: (storage: TStorage, key: string) => Promise<IValueWrapper<TValue>>,
+  /**
+   * getter return undefined/null means miss match the key
+   */
+  getter: (storage: TStorage, key: string) => Promise<IValueWrapper<TValue> | undefined | null>,
   setter: (storage: TStorage, key: string, valueWrapper: IValueWrapper<TValue>, ttl?: number) => Promise<IValueWrapper<TValue>>,
   remover?: (storage: TStorage, key: string) => any,
   iterater?: (storage: TStorage, cb: (v: IValueWrapper<TValue>, key: string) => void) => void,
+}
+
+export interface ICache<TValue> {
+  applyWith: (name: string, func: Function, ttl: number, params: any[]) => Promise<TValue>,
+  wrapperWithCall: (name: string, func: Function, ttl: number) => (...params: any[]) => Promise<TValue>,
+  cleanUp: (ttl: number) => Promise<any>,
+  save: (key: string, value: TValue, ttl?: number) => Promise<IValueWrapper<TValue>>,
+  load: (key: string, ttl?: number) => Promise<TValue | undefined>,
 }
 
 const Hour = 3600
 const Day = 24 * Hour
 
 /**
+ * 
+ * TODO: opts: key generator
  * 
  * save(key, value, ttl)
  * load(key, ttl)
@@ -47,7 +60,7 @@ const Day = 24 * Hour
 export function createCache<TStorage, TValue>(
   storage: TStorage,
   opts: IOptions<TStorage, TValue>
-) {
+): ICache<TValue> {
   let { getter, setter } = opts
 
   if (!getter || !setter) {

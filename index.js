@@ -12,6 +12,8 @@ const Hour = 3600;
 const Day = 24 * Hour;
 /**
  *
+ * TODO: opts: key generator
+ *
  * save(key, value, ttl)
  * load(key, ttl)
  * cleanUp(ttl)
