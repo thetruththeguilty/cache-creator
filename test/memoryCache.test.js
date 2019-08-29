@@ -6,8 +6,13 @@ function sleep(n) {
 
 test('test save', async () => {
   let value = await memoryCache.save('a', 1)
-  expect(value).toHaveProperty('value')
-  expect(value).toHaveProperty('timestamp')
+  expect(value).toStrictEqual(
+
+    expect.objectContaining({
+      value: expect.anything(),
+      timestamp: expect.any(Number)
+    })
+  )
   expect(value.value).toBe(1)
 })
 

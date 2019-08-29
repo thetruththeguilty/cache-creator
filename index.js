@@ -87,7 +87,7 @@ function createCache(storage, opts) {
             let remover;
             let iterater;
             if (!opts.iterater || !opts.remover) {
-                console.warn('create cache do not offer iterater and remover function');
+                console.warn('create cache do not offer iterater and remover function, and this cleanup is skipped');
                 return false;
             }
             else {
@@ -95,8 +95,8 @@ function createCache(storage, opts) {
                 iterater = opts.iterater;
             }
             yield iterater(storage, (v, k) => {
+                // remove when iterater may cause error in some storage
                 if (!v || !v.value || !v.timestamp) {
-                    // remove when iterater may cause error in some storage
                     remover(storage, k);
                 }
                 else {
