@@ -111,6 +111,9 @@ function createCache(storage, opts) {
     });
     return {
         applyWith, wrapperWithCall, cleanUp, save, load,
+        timeDivider: function () {
+            return timeDivider;
+        }
     };
 }
 exports.createCache = createCache;

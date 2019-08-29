@@ -31,6 +31,7 @@ export interface ICache<TValue> {
     cleanUp: (ttl: number) => Promise<any>;
     save: (key: string, value: TValue, ttl?: number) => Promise<IValueWrapper<TValue>>;
     load: (key: string, ttl?: number) => Promise<TValue | undefined>;
+    timeDivider: () => number;
 }
 /**
  *
