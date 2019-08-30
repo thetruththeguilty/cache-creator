@@ -24,6 +24,10 @@ export interface IOptions<TStorage, TValue> {
     setter: (storage: TStorage, key: string, valueWrapper: IValueWrapper<TValue>, ttl?: number) => Promise<IValueWrapper<TValue>>;
     remover?: (storage: TStorage, key: string) => any;
     iterater?: (storage: TStorage, cb: (v: IValueWrapper<TValue>, key: string) => void) => void;
+    /**
+     * trigger when get action find this
+     */
+    onTimeout?: (storage: TStorage, key: string, box: IValueWrapper<TValue>) => Promise<void>;
 }
 export interface ICache<TValue> {
     applyWith: (name: string, func: Function, ttl: number, params: any[]) => Promise<TValue>;
@@ -35,7 +39,10 @@ export interface ICache<TValue> {
 }
 /**
  *
- * TODO: opts: key generator
+ * TODO: opts: key generator,
+ * in case of some storage do not support some charactor in key string
+ *
+ * TODO: refacto this with a plugin style
  *
  * save(key, value, ttl)
  * load(key, ttl)

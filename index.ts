@@ -31,6 +31,11 @@ export interface IOptions<TStorage, TValue> {
   setter: (storage: TStorage, key: string, valueWrapper: IValueWrapper<TValue>, ttl?: number) => Promise<IValueWrapper<TValue>>,
   remover?: (storage: TStorage, key: string) => any,
   iterater?: (storage: TStorage, cb: (v: IValueWrapper<TValue>, key: string) => void) => void,
+
+  /**
+   * trigger when get action find this
+   */
+  onTimeout?: (storage: TStorage, key: string, box: IValueWrapper<TValue>) => Promise<void>
 }
 
 export interface ICache<TValue> {
@@ -47,7 +52,10 @@ const Day = 24 * Hour
 
 /**
  * 
- * TODO: opts: key generator
+ * TODO: opts: key generator,
+ * in case of some storage do not support some charactor in key string
+ * 
+ * TODO: refacto this with a plugin style
  * 
  * save(key, value, ttl)
  * load(key, ttl)
@@ -80,8 +88,11 @@ export function createCache<TStorage, TValue>(
     let box = await getter(storage, key)
     if (box) {
       let timestamp = box.timestamp || 0
-      if (currentTimestamp - timestamp < ttl) {
+      if (currentTimestamp - timestamp < ttl) { // in time
         return box.value
+      }
+      else if (opts.onTimeout) {
+        await opts.onTimeout(storage, key, box)
       }
     }
     return undefined

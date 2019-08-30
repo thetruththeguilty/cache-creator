@@ -12,7 +12,10 @@ const Hour = 3600;
 const Day = 24 * Hour;
 /**
  *
- * TODO: opts: key generator
+ * TODO: opts: key generator,
+ * in case of some storage do not support some charactor in key string
+ *
+ * TODO: refacto this with a plugin style
  *
  * save(key, value, ttl)
  * load(key, ttl)
@@ -41,8 +44,11 @@ function createCache(storage, opts) {
             let box = yield getter(storage, key);
             if (box) {
                 let timestamp = box.timestamp || 0;
-                if (currentTimestamp - timestamp < ttl) {
+                if (currentTimestamp - timestamp < ttl) { // in time
                     return box.value;
+                }
+                else if (opts.onTimeout) {
+                    yield opts.onTimeout(storage, key, box);
                 }
             }
             return undefined;
