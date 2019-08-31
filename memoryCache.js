@@ -29,10 +29,11 @@ class MemoryStorage {
     }
 }
 exports.MemoryStorage = MemoryStorage;
-function createMemoryCache(maxCount) {
+function createMemoryCache(maxCount, nextLevel) {
     return index_1.default(new MemoryStorage(maxCount), {
         getter: (storage, key) => __awaiter(this, void 0, void 0, function* () { return storage.getItem(key); }),
         setter: (storage, key, value) => __awaiter(this, void 0, void 0, function* () { return storage.setItem(key, value); }),
+        nextLevel: nextLevel,
     });
 }
 exports.createMemoryCache = createMemoryCache;

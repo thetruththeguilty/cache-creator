@@ -25,9 +25,14 @@ export interface IOptions<TStorage, TValue> {
     remover?: (storage: TStorage, key: string) => any;
     iterater?: (storage: TStorage, cb: (v: IValueWrapper<TValue>, key: string) => void) => void;
     /**
-     * trigger when get action find this
+     * trigger when get action find this,
+     * timeout action is async
      */
     onTimeout?: (storage: TStorage, key: string, box: IValueWrapper<TValue>) => Promise<void>;
+    /**
+     * 入侵式的修改，需要使用插件式的模式来添加功能。 TODO:
+     */
+    nextLevel?: ICache<TValue>;
 }
 export interface ICache<TValue> {
     applyWith: (name: string, func: Function, ttl: number, params: any[]) => Promise<TValue>;

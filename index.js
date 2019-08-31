@@ -32,9 +32,14 @@ function createCache(storage, opts) {
         throw new Error('create Cache must off getter and setter');
     }
     let timeDivider = opts.timeDivider || 1000;
+    let nextLevel = opts.nextLevel;
     function save(key, value, ttl = 0) {
         return __awaiter(this, void 0, void 0, function* () {
             let currentTimestamp = Date.now() / timeDivider | 0;
+            // set to next level as a copy
+            if (nextLevel) {
+                nextLevel.save(key, value, ttl);
+            }
             return setter(storage, key, { value, timestamp: currentTimestamp }, ttl);
         });
     }
@@ -42,13 +47,20 @@ function createCache(storage, opts) {
         return __awaiter(this, void 0, void 0, function* () {
             let currentTimestamp = Date.now() / timeDivider | 0;
             let box = yield getter(storage, key);
-            if (box) {
+            if (box) { // get the box
                 let timestamp = box.timestamp || 0;
                 if (currentTimestamp - timestamp < ttl) { // in time
                     return box.value;
                 }
                 else if (opts.onTimeout) {
-                    yield opts.onTimeout(storage, key, box);
+                    opts.onTimeout(storage, key, box);
+                }
+            }
+            else if (nextLevel) { // cache miss, not timeout
+                let ret = yield nextLevel.load(key, ttl);
+                if (ret) {
+                    save(key, ret, ttl);
+                    return ret;
                 }
             }
             return undefined;

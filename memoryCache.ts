@@ -1,4 +1,4 @@
-import createCache from './index'
+import createCache, { ICache } from './index'
 
 export class MemoryStorage {
 
@@ -24,12 +24,13 @@ export class MemoryStorage {
   }
 }
 
-export function createMemoryCache(maxCount: number) {
-  return createCache<MemoryStorage, any>(
+export function createMemoryCache<TValue>(maxCount: number, nextLevel?: ICache<TValue>) {
+  return createCache<MemoryStorage, TValue>(
     new MemoryStorage(maxCount),
     {
       getter: async (storage, key) => storage.getItem(key),
       setter: async (storage, key, value) => storage.setItem(key, value),
+      nextLevel: nextLevel,
     }
   )
 }

@@ -1,3 +1,4 @@
+import { ICache } from './index';
 export declare class MemoryStorage {
     dict: any;
     queue: any[];
@@ -6,5 +7,5 @@ export declare class MemoryStorage {
     getItem(key: string): any;
     setItem(key: string, value: any): any;
 }
-export declare function createMemoryCache(maxCount: number): import(".").ICache<any>;
-export declare let memoryCache: import(".").ICache<any>;
+export declare function createMemoryCache<TValue>(maxCount: number, nextLevel?: ICache<TValue>): ICache<TValue>;
+export declare let memoryCache: ICache<unknown>;

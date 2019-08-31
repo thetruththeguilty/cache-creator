@@ -33,9 +33,15 @@ export interface IOptions<TStorage, TValue> {
   iterater?: (storage: TStorage, cb: (v: IValueWrapper<TValue>, key: string) => void) => void,
 
   /**
-   * trigger when get action find this
+   * trigger when get action find this,
+   * timeout action is async
    */
   onTimeout?: (storage: TStorage, key: string, box: IValueWrapper<TValue>) => Promise<void>
+
+  /**
+   * 入侵式的修改，需要使用插件式的模式来添加功能。 TODO:
+   */
+  nextLevel?: ICache<TValue>
 }
 
 export interface ICache<TValue> {
@@ -77,24 +83,36 @@ export function createCache<TStorage, TValue>(
   }
 
   let timeDivider = opts.timeDivider || 1000
+  let nextLevel = opts.nextLevel
 
   async function save (key: string, value: TValue, ttl: number = 0) {
     let currentTimestamp = Date.now() / timeDivider | 0
+    // set to next level as a copy
+    if (nextLevel) { nextLevel.save(key, value, ttl) }
     return setter(storage, key, { value, timestamp: currentTimestamp }, ttl)
   }
 
   async function load (key: string, ttl: number = Day) {
     let currentTimestamp = Date.now() / timeDivider | 0
     let box = await getter(storage, key)
-    if (box) {
+
+    if (box) { // get the box
       let timestamp = box.timestamp || 0
       if (currentTimestamp - timestamp < ttl) { // in time
         return box.value
       }
       else if (opts.onTimeout) {
-        await opts.onTimeout(storage, key, box)
+        opts.onTimeout(storage, key, box)
       }
     }
+    else if (nextLevel) { // cache miss, not timeout
+      let ret = await nextLevel.load(key, ttl)
+      if (ret) {
+        save(key, ret, ttl)
+        return ret
+      }
+    }
+
     return undefined
   }
 
