@@ -128,7 +128,7 @@ function createCache(storage, opts) {
         });
     });
     return {
-        applyWith, wrapperWithCall, cleanUp, save, load,
+        applyWith, wrapperWithCall, cleanUp, save, load, of: wrapperWithCall,
         timeDivider: function () {
             return timeDivider;
         }

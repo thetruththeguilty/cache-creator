@@ -47,7 +47,10 @@ export interface IOptions<TStorage, TValue> {
 export interface ICache<TValue> {
   applyWith: (name: string, func: Function, ttl: number, params: any[]) => Promise<TValue>,
   wrapperWithCall: (name: string, func: Function, ttl: number) => (...params: any[]) => Promise<TValue>,
-  // alias of wrapperWithCall
+
+  /**
+   * 'of' is an alias of wrapperWithCall
+   */
   of: (name: string, func: Function, ttl: number) => (...params: any[]) => Promise<TValue>,
   cleanUp: (ttl: number) => Promise<any>,
   save: (key: string, value: TValue, ttl?: number) => Promise<IValueWrapper<TValue>>,
